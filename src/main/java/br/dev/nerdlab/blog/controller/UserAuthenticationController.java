@@ -1,6 +1,8 @@
 package br.dev.nerdlab.blog.controller;
 
 import br.dev.nerdlab.blog.authentication.User;
+import br.dev.nerdlab.blog.authentication.dto.LoginRequestDTO;
+import br.dev.nerdlab.blog.authentication.dto.LoginResponseDTO;
 import br.dev.nerdlab.blog.authentication.dto.UserDTO;
 import br.dev.nerdlab.blog.service.UserAuthenticationService;
 import lombok.AllArgsConstructor;
@@ -18,6 +20,27 @@ import java.util.UUID;
 public class UserAuthenticationController {
 
     private final UserAuthenticationService authenticationService;
+
+
+    @PostMapping("/register")
+    public ResponseEntity<User> register(@RequestBody UserDTO userDTO) {
+        User savedUser = authenticationService.createUser(userDTO);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(savedUser.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(savedUser);
+    }
+
+    // NOVO ENDPOINT DE LOGIN
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO loginDTO) {
+        LoginResponseDTO response = authenticationService.authenticateUser(loginDTO);
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping()
     public ResponseEntity<User> saveUser(@RequestBody UserDTO userDTO){
