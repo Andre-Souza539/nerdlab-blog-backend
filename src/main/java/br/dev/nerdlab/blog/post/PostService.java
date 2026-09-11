@@ -7,6 +7,10 @@ import br.dev.nerdlab.blog.post.dto.PostResponseDTO;
 import br.dev.nerdlab.blog.post.dto.PostUpdateDTO;
 import br.dev.nerdlab.blog.security.user.UserPrincipal;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.text.Normalizer;
@@ -31,7 +35,7 @@ public class PostService {
         post.setTitle(dto.title());
         post.setSlug(generateUniqueSlug(dto.title()));
         post.setContent(dto.content());
-        post.setSummary(dto.summart());
+        post.setSummary(dto.summary());
         post.setPublished(dto.published() != null ? dto.published() : true);
         post.setAuthor(author);
 
@@ -39,11 +43,20 @@ public class PostService {
         return PostResponseDTO.fromEntity(savedPost);
     }
 
-    public List<PostResponseDTO> getAllPublishedPosts(){
-        return postRepository.findByPublishedTrueOrderByCreatedAtDesc()
-                .stream()
-                .map(PostResponseDTO::fromEntity)
-                .toList();
+    public Page<PostResponseDTO> getAllPublishedPosts(int page, int size, String search) {
+
+        Pageable pageable = PageRequest.of(page,size, Sort.by("createdAt").descending());
+
+        Page<Post> posts;
+
+        if(search != null && !search.trim().isEmpty()){
+            posts = postRepository.findByPublishedTrueAndTitleContainingIgnoreCase(search.trim(),pageable);
+        } else{
+            posts = postRepository.findByPublishedTrue(pageable);
+        }
+
+        return posts.map(PostResponseDTO::fromEntity);
+
     }
 
     public PostResponseDTO getPostBySlug(String slug){

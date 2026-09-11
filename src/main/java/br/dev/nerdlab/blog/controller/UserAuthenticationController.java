@@ -17,6 +17,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/users/auth/")
 @AllArgsConstructor
+@CrossOrigin(origins = "*")
 public class UserAuthenticationController {
 
     private final UserAuthenticationService authenticationService;

@@ -1,5 +1,7 @@
 package br.dev.nerdlab.blog.post;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +14,9 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
 
     Optional<Post> findBySlug(String slug);
 
-    List<Post> findByPublishedTrueOrderByCreatedAtDesc();
+    Page<Post> findByPublishedTrue(Pageable pageable);
+
+    Page<Post> findByPublishedTrueAndTitleContainingIgnoreCase(String title, Pageable pageable);
 
     boolean existsBySlug(String slug);
 

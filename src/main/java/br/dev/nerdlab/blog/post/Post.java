@@ -31,7 +31,7 @@ public class Post {
     @Column(name = "content")
     private String content;
 
-    @Column(name = "sumary")
+    @Column(name = "summary")
     private String summary;
 
     @Column(name = "published")

@@ -1,32 +1,34 @@
 package br.dev.nerdlab.blog.post;
 
-import br.dev.nerdlab.blog.authentication.User;
 import br.dev.nerdlab.blog.post.dto.PostCreateDTO;
 import br.dev.nerdlab.blog.post.dto.PostResponseDTO;
 import br.dev.nerdlab.blog.post.dto.PostUpdateDTO;
 import br.dev.nerdlab.blog.security.user.UserPrincipal;
 import lombok.AllArgsConstructor;
-import org.apache.coyote.Response;
-import org.springframework.data.repository.config.RepositoryNameSpaceHandler;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/posts")
 @AllArgsConstructor
+@CrossOrigin(origins = "*")
 public class PostController {
 
     private final PostService postService;
 
     @GetMapping
-    public ResponseEntity<List<PostResponseDTO>> getAllPosts(){
-        return ResponseEntity.ok(postService.getAllPublishedPosts());
+    public ResponseEntity<Page<PostResponseDTO>> getAllPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search
+    ){
+        return ResponseEntity.ok(postService.getAllPublishedPosts(page, size, search));
     }
 
     @GetMapping("/{slug}")
@@ -42,7 +44,7 @@ public class PostController {
         PostResponseDTO response = postService.createPost(dto, currentUser);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("{slug}")
+                .path("/{slug}")
                 .buildAndExpand(response.slug())
                 .toUri();
 
